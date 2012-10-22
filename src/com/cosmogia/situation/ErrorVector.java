@@ -16,44 +16,47 @@ public class ErrorVector {
 	
 	public static ErrorVector errorVector(Waypoint actual, Waypoint desired) {
 		// meters
-		System.out.println("errorVector: lat, lon: " + actual.lat +"," + actual.lon + "," + desired.lat + "," + desired.lon);
-		double R = 6371000;
-		double dLat = Math.toRadians(desired.lat - actual.lat);
-		double dLon = Math.toRadians(desired.lon - actual.lon);
 		double lat1 = Math.toRadians(actual.lat);
+		double lon1 = Math.toRadians(actual.lon);
 		double lat2 = Math.toRadians(desired.lat);
+		double lon2 = Math.toRadians(desired.lon);
+		
+		System.out.println("errorVector: lat, lon: " + lat1 +"," + lon1 + "," + lat2 + "," + lon2);
+		double R = 6371000;
+		double dLat = lat2-lat1;
+		double dLon = lon2-lon1;
 		
 		double a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 		
 		double magHorz = R * c;
-		double magVert = desired.alt - actual.alt; // positive magVert means you are too low
+		double magVert = desired.alt - actual.alt; // meters, positive magVert means you are too low
 		double magnitude = Math.hypot(magHorz, magVert);
 		
 		double y = Math.sin(dLon) * Math.cos(lat2);
 		double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
 		
 		double bearingDegrees = Math.toDegrees(Math.atan2(y,x)); // degrees
-		double bearing = (bearingDegrees + 360) % 360; // shifted
+		double bearing = (-bearingDegrees + 360) % 360; // shifted
 		
 		double XTE,ATE;
 		if(desired.previous != null) {			
-			double theta = courseBearing(desired.previous, desired);
-			double phi = courseBearing(actual, desired.previous);
-			double beta = phi - theta;
+			double theta = courseBearing(desired, actual);
+			double phi = courseBearing(desired, desired.previous);
+			double beta = theta - phi;
 			
 			// Positive XTE means you are to the "left" of the course
-			XTE = magHorz(actual, desired.previous) * Math.sin(Math.toRadians(beta));
-			ATE = Math.sqrt(magHorz * magHorz - XTE * XTE);
-			beta = bearing - theta;
-			
-			if(Math.signum(beta-90) == 1); {
-				ATE = -1 * ATE;
-			}  
+			XTE = magHorz * Math.sin(Math.toRadians(beta));
+			ATE = magHorz * Math.cos(Math.toRadians(beta));
 		}
 		else {
-			XTE = 0;
-			ATE = magHorz;
+			double theta = courseBearing(desired.next, actual);
+			double phi = courseBearing(desired.next, desired);
+			double beta = theta - phi;
+			
+			// Positive XTE means you are to the "left" of the course
+			XTE = magHorz * Math.sin(Math.toRadians(beta));
+			ATE = magHorz * Math.cos(Math.toRadians(beta));
 		}
 		
 		ErrorVector result = new ErrorVector(magnitude,bearing,XTE,ATE,magVert,magHorz);
@@ -87,7 +90,7 @@ public class ErrorVector {
 			double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
 			
 			double bearingDegrees = Math.toDegrees(Math.atan2(y,x)); // degrees
-			double bearing = (bearingDegrees + 360) % 360; // shifted
+			double bearing = (-bearingDegrees + 360) % 360; // shifted
 			
 			return bearing;
 		}
@@ -105,17 +108,22 @@ public class ErrorVector {
 		double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
 		
 		double bearingDegrees = Math.toDegrees(Math.atan2(y,x)); // degrees
-		double bearing = (bearingDegrees + 360) % 360; // shifted
+		double bearing = (-bearingDegrees + 360) % 360; // shifted
 			
 		return bearing;
 	}
 	
 	public static double magHorz(Waypoint source, Waypoint dest) {
+		// meters
+		double lat1 = Math.toRadians(source.lat);
+		double lon1 = Math.toRadians(source.lon);
+		double lat2 = Math.toRadians(dest.lat);
+		double lon2 = Math.toRadians(dest.lon);
+		
+		System.out.println("errorVector: lat, lon: " + lat1 +"," + lon1 + "," + lat2 + "," + lon2);
 		double R = 6371;
-		double dLat = Math.toRadians(source.lat - dest.lat);
-		double dLon = Math.toRadians(source.lon - dest.lon);
-		double lat1 = Math.toRadians(dest.lat);
-		double lat2 = Math.toRadians(source.lat);
+		double dLat = lat2-lat1;
+		double dLon = lon2-lon1;
 		
 		double a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
