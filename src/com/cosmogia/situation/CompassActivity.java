@@ -31,7 +31,7 @@ public class CompassActivity extends Activity {
     double speed,alt,bearing,oughtVelocity,velocityExcess;
     double lat,lon;
     long minTime = 0;
-    Float minDistance = 10f;
+    Float minDistance = 0f;
     String bestProvider;
     String filename = "waypoints.txt";
     ArrayList<Waypoint> course;
@@ -49,7 +49,7 @@ public class CompassActivity extends Activity {
 		timeBuffer = (course.get(0).time);			
 		course.remove(0);	
 		startTime = System.currentTimeMillis()/1000.0;
-		offset = 60;
+		offset = 0;
 		
 		criteria = new Criteria();
 		criteria.setSpeedRequired(true);

@@ -68,7 +68,6 @@ public class CompassView extends View {
 		  }
 	  }
 	  
-	  // CHECK THIS!!
 	  private double scaleTime(double time) {
 		  double t0 = -120;
 		  double t1 = 0;
@@ -78,7 +77,7 @@ public class CompassView extends View {
 			  return d0;
 		  if (time > t1)
 			  return d1;
-		  return d0 + (d1-d0)*(time - t0)/(t1-t0);
+		  return (d0-d1)*(t1-time)/(t1-t0) + d1;
 	  }
 	  
 	  public void setCourseBearing(double angle) {
@@ -274,10 +273,10 @@ public class CompassView extends View {
     int course2Endy = (int) (py + ((int) radius*Math.cos(courseAngle)));
     
 //    course deviation indicator
-    int courseDevStartx = (int) (course1Startx - ((int) 50*dev/DEVMAX*Math.cos(courseAngle)));
-    int courseDevStarty = (int) (course1Starty - ((int) 50*dev/DEVMAX*Math.sin(courseAngle)));
-    int courseDevEndx = (int) (course2Startx - ((int) 50*dev/DEVMAX*Math.cos(courseAngle)));
-    int courseDevEndy = (int) (course2Starty - ((int) 50*dev/DEVMAX*Math.sin(courseAngle)));
+    int courseDevStartx = (int) (course1Startx - ((int) 70*dev/DEVMAX*Math.cos(courseAngle)));
+    int courseDevStarty = (int) (course1Starty - ((int) 70*dev/DEVMAX*Math.sin(courseAngle)));
+    int courseDevEndx = (int) (course2Startx - ((int) 70*dev/DEVMAX*Math.cos(courseAngle)));
+    int courseDevEndy = (int) (course2Starty - ((int) 70*dev/DEVMAX*Math.sin(courseAngle)));
     
     System.out.println("deviation: " + dev);
       
@@ -382,7 +381,7 @@ public class CompassView extends View {
 
   // write time
 //  canvas.drawText(Double.toString(time), px, vOriginY + 80, textPaint);
-  canvas.drawText(Integer.toString((int)time), px, vOriginY + 80, textPaint);
+  canvas.drawText(Integer.toString((int)time), px, vOriginY + 100, textPaint);
   
 
   }
