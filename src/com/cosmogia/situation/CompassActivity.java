@@ -8,6 +8,7 @@ import java.util.Locale;
 import com.cosmogia.situation.R;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,9 +17,12 @@ import android.os.Bundle;
 import android.os.Environment;
 
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.System;
 
 public class CompassActivity extends Activity {
@@ -35,9 +39,14 @@ public class CompassActivity extends Activity {
     String bestProvider;
     String filename = "waypoints.txt";
     ArrayList<Waypoint> course;
-    double startTime,timeBuffer,currentTime,offset;
+    double startTime,timeBuffer,currentTime;
+    static double offset = 0;
     ArrayList<String> log;
 
+    public static void setOffset(double off) {
+    	offset = off;
+    }
+    
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle); 
@@ -45,11 +54,51 @@ public class CompassActivity extends Activity {
 		compassView = (CompassView)this.findViewById(R.id.compassView1);
 		log = new ArrayList<String>();
 		locMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+   		try {
+   			String root = Environment.getExternalStorageDirectory().toString();
+   	        File myDir = new File(root + "/HSI/inputs");
+   	        myDir.mkdirs();
+   	        File input = new File(myDir,filename);
+   	        if(input.exists()) {
+   	        	DataInputStream dataIO = new DataInputStream(new FileInputStream(input));
+   	        	String line;
+   	        	if((line = dataIO.readLine()) != null) {
+   	        		System.out.println("got header: " + line);
+   	        		String[] gdata = line.split(",");
+   	        		offset = Double.valueOf(gdata[0]);
+   	        		int vForward = Integer.valueOf(gdata[1]);
+   	        		ErrorVector.setVelocityForward(vForward);
+   	        		dataIO.close();
+   	        		course = Waypoint.getWaypoints(this, filename);
+   	        	} else {
+   	        		System.out.println("file empty, idiot!");
+   	        	}
+   	        } else {
+   	        	System.out.println("file doesn't exist, idiot!");
+   	        	AssetManager am = getAssets();
+   				InputStream is = am.open(filename);
+   				DataInputStream dataIO = new DataInputStream(is);
+   				String strLine = null;
+   				if((strLine = dataIO.readLine()) == null) {
+   					System.out.println("file is empty, idiot!");
+   				} else {
+   					String[] gdata = strLine.split(",");
+   	        		offset = Double.valueOf(gdata[0]);
+   	        		int vForward = Integer.valueOf(gdata[1]);
+   	        		ErrorVector.setVelocityForward(vForward);
+   	        		dataIO.close();
+   	        		course = Waypoint.getWaypoints(this, filename);
+   				}
+   	        }
+   		} catch (IOException e) {
+   			// TODO Auto-generated catch block
+   			e.printStackTrace();
+   		}
+		
 		course = Waypoint.getWaypoints(this, filename);
 		timeBuffer = (course.get(0).time);			
 		course.remove(0);	
 		startTime = System.currentTimeMillis()/1000.0;
-		offset = 0;
 		
 		criteria = new Criteria();
 		criteria.setSpeedRequired(true);
@@ -124,7 +173,7 @@ public class CompassActivity extends Activity {
    		BufferedWriter bufferedWriter;
    		try {
    			String root = Environment.getExternalStorageDirectory().toString();
-   	        File myDir = new File(root + "/HSI");
+   	        File myDir = new File(root + "/HSI/logs");
    	        myDir.mkdirs();
    	        SimpleDateFormat df = new SimpleDateFormat("HH:mm", Locale.US);//DateFormat.getTimeInstance();
    	        String time = df.format(new Date());

@@ -3,6 +3,11 @@ package com.cosmogia.situation;
 public class ErrorVector {
 	
 	public final double magnitude, bearing, XTE, ATE, magVert, magHorz;
+	private static int velocityForward = 10;
+	
+	public static void setVelocityForward(int v) {
+		velocityForward = v;
+	}
 	
 	public ErrorVector(double magnitude, double bearing, double XTE, double ATE, double altE, double magHorz) {
 		super();
@@ -68,7 +73,7 @@ public class ErrorVector {
 	public static double[] velocityRequired(Waypoint actual, Waypoint desired) {
 		double i = 0;
 		Waypoint last = desired;
-		while(last.next != null && i <= 10.0) {
+		while(last.next != null && i <= velocityForward) {
 			i += 1;
 			last = last.next;
 		}

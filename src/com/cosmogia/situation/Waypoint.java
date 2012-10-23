@@ -29,6 +29,9 @@ public class Waypoint {
 			InputStream is = am.open(filename);
 			DataInputStream dataIO = new DataInputStream(is);
 			String strLine = null;
+			if((strLine = dataIO.readLine()) == null) {
+				System.out.println("file is empty, idiot!");
+			}
 			
 		    Waypoint head = null;
 		    Waypoint last = null;
