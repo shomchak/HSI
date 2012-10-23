@@ -2,6 +2,7 @@ package com.cosmogia.situation;
 
 import com.cosmogia.situation.R;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.*;
 import android.view.*;
@@ -21,6 +22,8 @@ public class CompassView extends View {
 	  private String southString;
 	  private String westString;
 	  private int textHeight;
+	  private final double densityMultiplier = getContext().getResources().getDisplayMetrics().density;
+	  private int ttextHeight;
 	  
 	  private static final int RED = -65536;
 	  private static final int WHITE = -1;
@@ -35,13 +38,17 @@ public class CompassView extends View {
 	  private static double DEVMAX = 1000;
 	  private static final double GLIDEMAX = 30;
 	  
-	  private double glide = 50; // meters
-	  private double dev = 50; // positive is to the left
-	  private double courseAngle = 3.14/4; // in radians
+	  private double glide = 0;// meters
+	  private double trueGlide = 0;
+	  private double dev = 0;
+	  private double trueDev = 0;// positive is to the left
+	  private double nextDistance = 0;
+	  private double courseAngle = .3; // in radians
 	  private double velocityExcess = 100;
-	  private double velocityAngle =273; // degrees
+	  private double trueSpeed = 0;
+	  private double velocityAngle =0; // degrees
 	  private double desiredVelocity = 110;
-	  private double dVelocityAngle = 275; // degrees
+	  private double dVelocityAngle = 0; // degrees
 	  private double bearing = Math.toRadians(0); // degrees
 	  private double time = 0;
 	  
@@ -50,7 +57,12 @@ public class CompassView extends View {
 	    bearing = Math.toRadians(_bearing);
 	  }
 	  
+	  public void setDistance(double distance) {
+		  nextDistance = distance;
+	  }
+	  
 	  public void setGlide(double _glide) {
+		  trueGlide = _glide;
 		  glide = _glide;
 		  if(glide > GLIDEMAX) {
 			  glide = GLIDEMAX;
@@ -58,12 +70,14 @@ public class CompassView extends View {
 	  }
 	  
 	  public void setVelocityExcess(double _vel) {
+		  trueSpeed = _vel;
 		  velocityExcess = _vel;
 	  }
 	  
 	  public void setCourseDeviation(double _dev) {
 		  dev = _dev;
-		  if(dev > DEVMAX) {
+		  trueDev = _dev;
+		  if(Math.abs(dev) > DEVMAX) {
 			  dev = DEVMAX;
 		  }
 	  }
@@ -137,6 +151,9 @@ public class CompassView extends View {
     textPaint.setTextAlign(Paint.Align.CENTER);
     textPaintAngle = new Paint();
     
+    ttextHeight = (int)(textPaint.measureText("www")*densityMultiplier);
+    System.out.println("ttextHeight: " + ttextHeight);
+    
     lubberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     lubberPaint.setColor(BLACK);
     lubberPaint.setStrokeWidth(3);
@@ -165,7 +182,7 @@ public class CompassView extends View {
     
     glideslopePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     glideslopePaint.setColor(YELLOW);
-    glideslopePaint.setStrokeWidth(9);
+    glideslopePaint.setStrokeWidth(4);
     glideslopePaint.setStyle(Paint.Style.FILL);
 
     textHeight = (int)textPaint.measureText("yY");
@@ -181,6 +198,7 @@ public class CompassView extends View {
     // height or width.
     int measuredWidth = measure(widthMeasureSpec);
     int measuredHeight = measure(heightMeasureSpec);
+    
 
     int d = Math.min(measuredWidth, measuredHeight);
 
@@ -206,13 +224,24 @@ public class CompassView extends View {
     return result;
   }
   
-  @Override 
+  @SuppressLint("DrawAllocation")
+@Override 
   protected void onDraw(Canvas canvas) {
 	  DEVMAX = scaleTime(time);
+	  if(Math.abs(dev) > DEVMAX) {
+		  dev = DEVMAX;
+		  System.out.println("dev Max: " + DEVMAX);
+	  }
+	  System.out.println("first dev: " + dev);
 	  setKeepScreenOn(true);
 
     int mMeasuredWidth = getMeasuredWidth();
     int mMeasuredHeight = getMeasuredHeight();
+    
+
+    
+    //textPaint.setTextSize((int)(mMeasuredWidth/80.0));
+
 
 
 //    circle
@@ -273,13 +302,26 @@ public class CompassView extends View {
     int course2Endy = (int) (py + ((int) radius*Math.cos(courseAngle)));
     
 //    course deviation indicator
-    int courseDevStartx = (int) (course1Startx - ((int) 70*dev/DEVMAX*Math.cos(courseAngle)));
-    int courseDevStarty = (int) (course1Starty - ((int) 70*dev/DEVMAX*Math.sin(courseAngle)));
-    int courseDevEndx = (int) (course2Startx - ((int) 70*dev/DEVMAX*Math.cos(courseAngle)));
-    int courseDevEndy = (int) (course2Starty - ((int) 70*dev/DEVMAX*Math.sin(courseAngle)));
+    int devMaxDeflection = (int)(radius*0.66); 
+    
+    int courseDevStartx = (int) (course1Startx - ((int) devMaxDeflection*dev/DEVMAX*Math.cos(courseAngle)));
+    int courseDevStarty = (int) (course1Starty - ((int) devMaxDeflection*dev/DEVMAX*Math.sin(courseAngle)));
+    int courseDevEndx = (int) (course2Startx - ((int) devMaxDeflection*dev/DEVMAX*Math.cos(courseAngle)));
+    int courseDevEndy = (int) (course2Starty - ((int) devMaxDeflection*dev/DEVMAX*Math.sin(courseAngle)));
     
     System.out.println("deviation: " + dev);
-      
+    
+    int dot1x = px;
+    int dot1y = py;
+    int dot2x = px + (int)(devMaxDeflection/2.0*Math.cos(courseAngle));
+    int dot2y = py + (int)(devMaxDeflection/2.0*Math.sin(courseAngle));
+    int dot3x = px - (int)(devMaxDeflection/2.0*Math.cos(courseAngle));
+    int dot3y = py - (int)(devMaxDeflection/2.0*Math.sin(courseAngle));
+    int dot4x = px + (int)(devMaxDeflection*Math.cos(courseAngle));
+    int dot4y = py + (int)(devMaxDeflection*Math.sin(courseAngle));
+    int dot5x = px - (int)(devMaxDeflection*Math.cos(courseAngle));
+    int dot5y = py - (int)(devMaxDeflection*Math.sin(courseAngle));
+    
     // Draw the background
     canvas.drawCircle(px, py, radius, circlePaint);
     // Rotate our perspective so that the ‘top’ is
@@ -367,6 +409,13 @@ public class CompassView extends View {
 //    course deviation bar
     canvas.drawLine(courseDevStartx,courseDevStarty,courseDevEndx,courseDevEndy,deviationPaint2);
     
+    // course deviation dots
+    canvas.drawCircle(px, py, 5, textPaint);
+    canvas.drawCircle(dot2x, dot2y, 5, textPaint);
+    canvas.drawCircle(dot3x, dot3y, 5, textPaint);
+    canvas.drawCircle(dot4x, dot4y, 5, textPaint);
+    canvas.drawCircle(dot5x, dot5y, 5, textPaint);
+    
 //  lubber line
   canvas.drawLine(px, 0, px, (int) (radius*0.9), lubberPaint);
     
@@ -381,7 +430,13 @@ public class CompassView extends View {
 
   // write time
 //  canvas.drawText(Double.toString(time), px, vOriginY + 80, textPaint);
-  canvas.drawText(Integer.toString((int)time), px, vOriginY + 100, textPaint);
+  int textStart = vOriginY + 100;
+  canvas.drawText("Time: " + Integer.toString((int)time) + " s", px, textStart, textPaint);
+  canvas.drawText("XTE: " + Integer.toString((int)trueDev) + " m",px,textStart+ttextHeight, textPaint);
+  canvas.drawText("Next: " + Integer.toString((int)nextDistance) + " m",px,textStart + 2*ttextHeight, textPaint);
+  canvas.drawText("Altitude: " + Integer.toString((int)trueGlide) + " m",px,textStart + 3*ttextHeight, textPaint);
+  
+  
   
 
   }

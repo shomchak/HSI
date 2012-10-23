@@ -85,8 +85,9 @@ public class CompassActivity extends Activity {
 		System.out.println("nearest waypoint: " + desiredLocation.toString());
 		double lat = location.getLatitude();
 		double lon = location.getLongitude();
-		System.out.println("got lat and lon");
+		System.out.println("longitude: " + lon);
 		double alt = location.getAltitude();
+		System.out.println("altitude: " + alt);
 		Waypoint actual = new Waypoint(lat,lon,alt,currentTime,null,null);
 		
 		log.add(actual.toString());
@@ -102,6 +103,7 @@ public class CompassActivity extends Activity {
 		compassView.setGlide(error.magVert);
 		compassView.setCourseBearing(ErrorVector.courseBearing(desired));
 		compassView.setCourseDeviation(error.XTE);
+		compassView.setDistance(error.magHorz);
 		compassView.setDesiredVelocity(ErrorVector.velocityRequired(actual, desired)[0]);
 		compassView.setDVelocityAngle(ErrorVector.velocityRequired(actual, desired)[1]);
 		compassView.setVelocityExcess(location.getSpeed());

@@ -73,7 +73,7 @@ public class Waypoint {
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		result.append(lat+","+lon+","+alt+","+time);
+		result.append(lat+","+lon+","+alt+","+time+"\n");
 		return result.toString();
 	}
 	
