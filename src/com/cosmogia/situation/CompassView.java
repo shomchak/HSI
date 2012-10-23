@@ -233,7 +233,7 @@ public class CompassView extends View {
   protected void onDraw(Canvas canvas) {
 	  DEVMAX = scaleTime(time);
 	  if(Math.abs(dev) > DEVMAX) {
-		  dev = DEVMAX;
+		  dev = Math.signum(trueDev)*DEVMAX;
 		  System.out.println("dev Max: " + DEVMAX);
 	  }
 	  System.out.println("first dev: " + dev);
@@ -440,7 +440,7 @@ public class CompassView extends View {
   canvas.drawText("Time: " + Integer.toString((int)time) + " s", px, textStart, textPaint);
   canvas.drawText("XTE: " + Integer.toString((int)trueDev) + " m",px,textStart+ttextHeight, textPaint);
   canvas.drawText("Next: " + Integer.toString((int)nextDistance) + " m",px,textStart + 2*ttextHeight, textPaint);
-  canvas.drawText("Current: " + Integer.toString((int)currentWaypoint) + " m",px,textStart + 3*ttextHeight, textPaint);
+  //canvas.drawText("Current: " + Integer.toString((int)currentWaypoint) + " m",px,textStart + 3*ttextHeight, textPaint);
   
   
   
