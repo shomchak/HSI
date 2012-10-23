@@ -97,7 +97,8 @@ public class CompassActivity extends Activity {
 		
 		course = Waypoint.getWaypoints(this, filename);
 		timeBuffer = (course.get(0).time);			
-		course.remove(0);	
+		System.out.println("nearest buffer" + timeBuffer + " ," + course.size());
+//		course.remove(0);	
 		startTime = System.currentTimeMillis()/1000.0;
 		
 		criteria = new Criteria();
@@ -130,6 +131,7 @@ public class CompassActivity extends Activity {
 	private void updatePosition(Location location) {
 		System.out.println("Updating position");
 		currentTime = System.currentTimeMillis()/1000.0 - startTime + timeBuffer - offset;
+		System.out.println("current time nearest" + currentTime);
 		Waypoint desiredLocation= Waypoint.getNearestWaypoint(course, currentTime);
 		System.out.println("nearest waypoint: " + desiredLocation.toString());
 		double lat = location.getLatitude();
@@ -141,7 +143,7 @@ public class CompassActivity extends Activity {
 		
 		log.add(actual.toString());
 		// write log to file each time, or get rid of log entirely
-		System.out.println(actual.toString());
+		System.out.println("theta before" + desiredLocation.time);
 		ErrorVector currentError = ErrorVector.errorVector(actual, desiredLocation);
 		updateDials(actual, desiredLocation, currentError, location);
 }
@@ -158,6 +160,7 @@ public class CompassActivity extends Activity {
 		compassView.setVelocityExcess(location.getSpeed());
 		compassView.setVelocityExcessAngle(location.getBearing());
 		compassView.setTime(actual.time);
+		compassView.setCurrent((int)desired.time);
 		compassView.invalidate();
 	}
 		

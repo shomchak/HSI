@@ -21,6 +21,7 @@ public class ErrorVector {
 	
 	public static ErrorVector errorVector(Waypoint actual, Waypoint desired) {
 		// meters
+		System.out.println("theta top" + desired.time);
 		double lat1 = Math.toRadians(actual.lat);
 		double lon1 = Math.toRadians(actual.lon);
 		double lat2 = Math.toRadians(desired.lat);
@@ -42,19 +43,25 @@ public class ErrorVector {
 		double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
 		
 		double bearingDegrees = Math.toDegrees(Math.atan2(y,x)); // degrees
-		double bearing = (-bearingDegrees + 360) % 360; // shifted
+		double bearing = (bearingDegrees + 360) % 360; // shifted
 		
 		double XTE,ATE;
+		System.out.println("theta bottom" + desired.time);
 		if(desired.previous != null) {			
 			double theta = courseBearing(desired, actual);
 			double phi = courseBearing(desired, desired.previous);
 			double beta = theta - phi;
+			System.out.println("the lat and lon 1:"+ actual);
+			System.out.println("the lat and lon 2:"+ desired);
 			
 			// Positive XTE means you are to the "left" of the course
 			XTE = magHorz * Math.sin(Math.toRadians(beta));
 			ATE = magHorz * Math.cos(Math.toRadians(beta));
+			System.out.println("theta,phi,beta: " +theta+','+phi+','+beta);
+			System.out.println("xte: " + XTE);
 		}
 		else {
+			System.out.println("theta, got here");
 			double theta = courseBearing(desired.next, actual);
 			double phi = courseBearing(desired.next, desired);
 			double beta = theta - phi;
@@ -95,7 +102,7 @@ public class ErrorVector {
 			double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
 			
 			double bearingDegrees = Math.toDegrees(Math.atan2(y,x)); // degrees
-			double bearing = (-bearingDegrees + 360) % 360; // shifted
+			double bearing = (bearingDegrees + 360) % 360; // shifted
 			
 			return bearing;
 		}
@@ -113,7 +120,8 @@ public class ErrorVector {
 		double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
 		
 		double bearingDegrees = Math.toDegrees(Math.atan2(y,x)); // degrees
-		double bearing = (-bearingDegrees + 360) % 360; // shifted
+		double bearing = (bearingDegrees + 360) % 360; // shifted
+		System.out.println("theta course bearing test: " + bearing);
 			
 		return bearing;
 	}

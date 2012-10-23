@@ -24,6 +24,7 @@ public class CompassView extends View {
 	  private int textHeight;
 	  private final double densityMultiplier = getContext().getResources().getDisplayMetrics().density;
 	  private int ttextHeight;
+	  private int currentWaypoint = 0;
 	  
 	  private static final int RED = -65536;
 	  private static final int WHITE = -1;
@@ -52,6 +53,9 @@ public class CompassView extends View {
 	  private double bearing = Math.toRadians(0); // degrees
 	  private double time = 0;
 	  
+	  public void setCurrent(int i) {
+		  currentWaypoint = i;
+	  }
 
 	  public void setBearing(double _bearing) {
 	    bearing = Math.toRadians(_bearing);
@@ -64,8 +68,8 @@ public class CompassView extends View {
 	  public void setGlide(double _glide) {
 		  trueGlide = _glide;
 		  glide = _glide;
-		  if(glide > GLIDEMAX) {
-			  glide = GLIDEMAX;
+		  if(Math.abs(glide) > GLIDEMAX) {
+			  glide = Math.signum(trueGlide)*GLIDEMAX;
 		  }
 	  }
 	  
@@ -78,7 +82,7 @@ public class CompassView extends View {
 		  dev = _dev;
 		  trueDev = _dev;
 		  if(Math.abs(dev) > DEVMAX) {
-			  dev = DEVMAX;
+			  dev = Math.signum(trueDev)*DEVMAX;
 		  }
 	  }
 	  
@@ -405,6 +409,8 @@ public class CompassView extends View {
 //    course select pointer
     canvas.drawLine(course1Startx,course1Starty,course1Endx,course1Endy,deviationPaint1);
     canvas.drawLine(course2Startx,course2Starty,course2Endx,course2Endy,deviationPaint1);
+    canvas.drawCircle(course1Endx, course1Endy, 4, velocityPaint);
+    
     
 //    course deviation bar
     canvas.drawLine(courseDevStartx,courseDevStarty,courseDevEndx,courseDevEndy,deviationPaint2);
@@ -434,7 +440,7 @@ public class CompassView extends View {
   canvas.drawText("Time: " + Integer.toString((int)time) + " s", px, textStart, textPaint);
   canvas.drawText("XTE: " + Integer.toString((int)trueDev) + " m",px,textStart+ttextHeight, textPaint);
   canvas.drawText("Next: " + Integer.toString((int)nextDistance) + " m",px,textStart + 2*ttextHeight, textPaint);
-  canvas.drawText("Altitude: " + Integer.toString((int)trueGlide) + " m",px,textStart + 3*ttextHeight, textPaint);
+  canvas.drawText("Current: " + Integer.toString((int)currentWaypoint) + " m",px,textStart + 3*ttextHeight, textPaint);
   
   
   

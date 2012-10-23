@@ -85,8 +85,9 @@ public class Waypoint {
 		System.out.println("got current time");
 		System.out.println(course.size());
 		for(int i = 0; i < course.size(); i++) {
-			System.out.println(i + "," + course.size());
+			System.out.println("nearest, total" + i + "," + course.size());
 			if(course.get(i).time >= time) {
+				System.out.println("nearest: " + i + course.get(i).time);
 				return course.get(i);
 			}
 		}
