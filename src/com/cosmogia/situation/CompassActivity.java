@@ -27,6 +27,8 @@ import java.lang.System;
 
 public class CompassActivity extends Activity {
 	
+    String filename = "waypoints.txt";
+    
 	CompassView compassView;	
 	Location loc;
 	LocationManager locMan;
@@ -37,7 +39,6 @@ public class CompassActivity extends Activity {
     long minTime = 0;
     Float minDistance = 0f;
     String bestProvider;
-    String filename = "waypoints.txt";
     ArrayList<Waypoint> course;
     double startTime,timeBuffer,currentTime;
     static double offset = 0;

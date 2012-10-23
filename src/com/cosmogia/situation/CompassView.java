@@ -409,7 +409,7 @@ public class CompassView extends View {
 //    course select pointer
     canvas.drawLine(course1Startx,course1Starty,course1Endx,course1Endy,deviationPaint1);
     canvas.drawLine(course2Startx,course2Starty,course2Endx,course2Endy,deviationPaint1);
-    canvas.drawCircle(course1Endx, course1Endy, 4, velocityPaint);
+    canvas.drawCircle(course1Endx, course1Endy, 5, velocityPaint);
     
     
 //    course deviation bar
