@@ -85,7 +85,9 @@ public class ErrorVector {
 			last = last.next;
 		}
 		ErrorVector error = errorVector(actual,last);
-		double speed = error.magHorz/i; // meters/second
+		double time = last.time - actual.time;
+		System.out.println("time delta: " + time);
+		double speed = error.magHorz/i;//time; // meters/second
 		double bearing = error.bearing; // degrees
 		double[] result = {speed, bearing};
 		return result;

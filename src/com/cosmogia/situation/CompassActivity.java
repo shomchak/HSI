@@ -27,7 +27,7 @@ import java.lang.System;
 
 public class CompassActivity extends Activity {
 	
-    String filename = "waypoints.txt";
+    String filename = "waypoints3.txt";
     
 	CompassView compassView;	
 	Location loc;
@@ -155,6 +155,7 @@ public class CompassActivity extends Activity {
 		compassView.setGlide(error.magVert);
 		compassView.setCourseBearing(ErrorVector.courseBearing(desired));
 		compassView.setCourseDeviation(error.XTE);
+		compassView.setATE(error.ATE);		
 		compassView.setDistance(error.magHorz);
 		compassView.setDesiredVelocity(ErrorVector.velocityRequired(actual, desired)[0]);
 		compassView.setDVelocityAngle(ErrorVector.velocityRequired(actual, desired)[1]);

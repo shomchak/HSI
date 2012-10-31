@@ -52,6 +52,11 @@ public class CompassView extends View {
 	  private double dVelocityAngle = 0; // degrees
 	  private double bearing = Math.toRadians(0); // degrees
 	  private double time = 0;
+	  private double ATE = 0;
+	  
+	  public void setATE(double ate) {
+		  ATE = ate;
+	  }
 	  
 	  public void setCurrent(int i) {
 		  currentWaypoint = i;
@@ -79,8 +84,8 @@ public class CompassView extends View {
 	  }
 	  
 	  public void setCourseDeviation(double _dev) {
-		  dev = _dev;
-		  trueDev = _dev;
+		  dev = -1*_dev;
+		  trueDev = -1*_dev;
 		  if(Math.abs(dev) > DEVMAX) {
 			  dev = Math.signum(trueDev)*DEVMAX;
 		  }
@@ -437,9 +442,10 @@ public class CompassView extends View {
   // write time
 //  canvas.drawText(Double.toString(time), px, vOriginY + 80, textPaint);
   int textStart = vOriginY + 100;
-  canvas.drawText("Time: " + Integer.toString((int)time) + " s", px, textStart, textPaint);
-  canvas.drawText("XTE: " + Integer.toString((int)trueDev) + " m",px,textStart+ttextHeight, textPaint);
-  canvas.drawText("Next: " + Integer.toString((int)nextDistance) + " m",px,textStart + 2*ttextHeight, textPaint);
+  canvas.drawText("Time: " + Integer.toString((int)time), px, textStart, textPaint);
+  canvas.drawText("XTE: " + Integer.toString((int)trueDev),px,textStart+ttextHeight, textPaint);
+  canvas.drawText("ATE: " + Integer.toString((int)ATE),px,textStart+2*ttextHeight, textPaint);  
+  canvas.drawText("Speed er: " + Integer.toString((int)(desiredVelocity-trueSpeed)),px,textStart + 3*ttextHeight, textPaint);
   //canvas.drawText("Current: " + Integer.toString((int)currentWaypoint) + " m",px,textStart + 3*ttextHeight, textPaint);
   
   
