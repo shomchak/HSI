@@ -1,0 +1,1 @@
+This project is broken, the working version can be found at -> https://github.com/shomchak/Navigator
